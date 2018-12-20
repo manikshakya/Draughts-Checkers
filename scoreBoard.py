@@ -1,14 +1,11 @@
-from PyQt5.QtWidgets import QDockWidget, QLabel, QWidget, QPushButton
+from PyQt5.QtWidgets import QDockWidget, QLabel, QWidget, QPushButton, QVBoxLayout
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from board import Board
 #from draughts import Draughts
-from board import Board
 import sys
 
 class ScoreBoard(QDockWidget):
-
-    piece = ""
 
     def __init__(self):
         super().__init__()
@@ -18,24 +15,31 @@ class ScoreBoard(QDockWidget):
 
     def initUI(self):
         '''initiates ScoreBoard UI'''
-        board = Board(self)
-        piece = board.returnPiece()
 
-
-        self.resize(50, 50)
+        self.resize(200, 200)
         self.center()
         self.setWindowTitle('ScoreBoard')
-        self.lbw = QLabel(self)
-        self.lbl = QLabel(self)
-        self.lbd = QLabel(self)
-        self.lbw.move(10, 20)
-        self.lbw.setText("wins = " + self.piece)
-        self.lbl.move(10, 40)
-        self.lbl.setText("loses = 2")
-        self.lbd.move(10, 60)
-        self.lbd.setText("draws = 3")
-        self.lbl = QLabel(self)
-        self.lbd = QLabel(self)
+
+        self.mainWidget = QWidget()
+        self.mainLayout = QVBoxLayout()
+
+
+        self.player = QLabel(self)
+        self.blackCaptured = QLabel(self)
+        self.whiteCaptured = QLabel(self)
+
+        self.player.move(10, 20)
+        self.player.setText("Current Player: White")
+
+        self.blackCaptured.move(10, 40)
+        self.blackCaptured.setText("Black Captured: 0")
+
+        self.whiteCaptured.move(10, 60)
+        self.whiteCaptured.setText("White Captured = 0")
+
+
+        #self.lbl = QLabel(self)
+        #self.lbd = QLabel(self)
 
         self.button1 = QPushButton('Exit', self)
         self.button1.setToolTip('this is an example')
@@ -45,6 +49,11 @@ class ScoreBoard(QDockWidget):
         self.button1.clicked.connect(self.on_click)
 
 
+        self.mainLayout.addWidget(self.player)
+        self.mainLayout.addWidget(self.blackCaptured)
+        self.mainLayout.addWidget(self.whiteCaptured)
+        self.mainWidget.setLayout(self.mainLayout)
+        self.setWidget(self.mainWidget)
         self.show()
 
     def on_click(self, a):
@@ -54,6 +63,29 @@ class ScoreBoard(QDockWidget):
     def center(self):
         '''centers the window on the screen'''
 
+    def make_connection(self, board):
+        board.playersTurn.connect(self.viewTurns)
+
+        board.blackCaptured.connect(self.viewBlackCaptured)
+        board.whiteCaptured.connect(self.viewWhiteCaptured)
+
+    @pyqtSlot(int)
+    def viewTurns(self, turn):
+        color = ""
+        if turn == 1:
+            color = "White"
+        elif turn == 2:
+            color = "Black"
+        self.player.setText("Current Player: " + color)
+        print("Turn: " + color)
+
+    @pyqtSlot(int)
+    def viewBlackCaptured(self, countBlack):
+        self.blackCaptured.setText("Black Captured: " + str(countBlack))
+
+    @pyqtSlot(int)
+    def viewWhiteCaptured(self, countWhite):
+        self.whiteCaptured.setText("White Captured: " + str(countWhite))
 
 
 

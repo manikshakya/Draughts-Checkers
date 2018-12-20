@@ -7,7 +7,9 @@ from piece import Piece
 
 class Board(QFrame):
     msg2Statusbar = pyqtSignal(str)
-    
+    playersTurn = pyqtSignal(int)
+    blackCaptured = pyqtSignal(int)
+    whiteCaptured = pyqtSignal(int)
 
     # todo set the board with and height in square
     boardWidth = 8
@@ -50,6 +52,8 @@ class Board(QFrame):
         self.piece = 0
         self.reset = False
         self.turn = 1
+        self.countBlackCaptures = 0
+        self.countWhiteCaptures = 0
 
 
         list = {"1, 2": "#2039480", "2, 0": "#0980809", "3, 1": "#0980809", "1, 5": "#0980809", "5, 7": "#0980809", "6, 4": "#0980809", "9, 0": "#0980809"}
@@ -212,6 +216,8 @@ class Board(QFrame):
                         print("Row: ", row)
                         print("Col: ", col)
                         self.boardArray[row][col] = 0
+                        self.countBlackCaptures += 1
+                        self.blackCaptured.emit(self.countBlackCaptures)
                     self.turn = 2
                 elif self.piece == 2:
                     if int(nextpos[0]) == (int(curpos[0]) - 1) and (int(nextpos[1]) >= 0 and int(nextpos[1]) <= 7 and (int(nextpos[1]) == (int(curpos[1]) - 1) or int(nextpos[1]) == (int(curpos[1]) + 1))):
@@ -226,10 +232,13 @@ class Board(QFrame):
                         print("Row: ", row)
                         print("Col: ", col)
                         self.boardArray[row][col] = 0
+                        self.countWhiteCaptures += 1
+                        self.whiteCaptured.emit(self.countWhiteCaptures)
                     self.turn = 1
 
             else:
                 self.curPos = pos
+            self.playersTurn.emit(self.turn)
 
 
             print("Cur: ", curpos)
@@ -425,7 +434,3 @@ class Board(QFrame):
     def returnPiece(self):
         return str(self.piece)
 
-    @pyqtSlot(str)
-    def playerTurn(self):
-        scoreBoard = ScoreBoard()
-        scoreBoard.piece = self.piece
