@@ -35,7 +35,7 @@ class ScoreBoard(QDockWidget):
         self.blackCaptured.setText("Black Captured: 0")
 
         self.whiteCaptured.move(10, 60)
-        self.whiteCaptured.setText("White Captured = 0")
+        self.whiteCaptured.setText("White Captured: 0")
 
 
         #self.lbl = QLabel(self)
@@ -48,10 +48,11 @@ class ScoreBoard(QDockWidget):
         self.button1.setGeometry(0, 100, 40, 20)
         self.button1.clicked.connect(self.on_click)
 
-
+        ''' Adding Widgets to the layout '''
         self.mainLayout.addWidget(self.player)
         self.mainLayout.addWidget(self.blackCaptured)
         self.mainLayout.addWidget(self.whiteCaptured)
+        self.mainLayout.addWidget(self.button1)
         self.mainWidget.setLayout(self.mainLayout)
         self.setWidget(self.mainWidget)
         self.show()
@@ -63,12 +64,14 @@ class ScoreBoard(QDockWidget):
     def center(self):
         '''centers the window on the screen'''
 
+    ''' Connection made from the board. '''
     def make_connection(self, board):
         board.playersTurn.connect(self.viewTurns)
 
         board.blackCaptured.connect(self.viewBlackCaptured)
         board.whiteCaptured.connect(self.viewWhiteCaptured)
 
+    ''' Displays the information in the ScoreBoard. '''
     @pyqtSlot(int)
     def viewTurns(self, turn):
         color = ""

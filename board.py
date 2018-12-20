@@ -62,12 +62,13 @@ class Board(QFrame):
         print(type(str(3) + ", " + str(1)))
 
 
-
+    ''' Prints the board in the console. '''
     def printBoardArray(self):
         '''prints the boardArray in an arractive way'''
         print("boardArray:")
         print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in self.boardArray]))
 
+    ''' Converts the mousePressEvent to the (rows,col) in the board. Tells us which box was clicked. '''
     def mousePosToColRow(self, event):
         '''convert the mouse click event to a row and column'''
         xPos = event.x()
@@ -77,10 +78,12 @@ class Board(QFrame):
         #print("Col width: ", self.squareWidth(), "Row height: ", self.squareHeight())
         return str(int(yPos/self.squareHeight())) + ", " + str(int(xPos/self.squareWidth()))
 
+    ''' Returns the width of the square '''
     def squareWidth(self):
         '''returns the width of one square in the board'''
         return self.contentsRect().width() / Board.boardWidth
 
+    ''' Returns the height of the square '''
     def squareHeight(self):
         '''returns the height of one squarein the board'''
         return self.contentsRect().height() / Board.boardHeight
@@ -116,13 +119,19 @@ class Board(QFrame):
             self.msg2Statusbar.emit(str("status message"))
         self.update()
 
+    ''' All the main event happens here. Drawing the board and pieces. '''
     def paintEvent(self, event):
         '''paints the board and the pieces of the game'''
         painter = QPainter(self)
         self.drawBoardSquares(painter)
         self.drawPieces(painter)
 
+        ''' Checks if the mouse was pressed and the previous point and the next point is not empty.
+            Reference variable is used to check the conditions. 
+        '''
+
         if self.mousePressed and self.curPos != "" and self.nextPos != "":
+            # Converts points (str) to list for easy access.
             curpos = [x.strip() for x in self.curPos.split(",")]
             nextpos = [x.strip() for x in self.nextPos.split(",")]
 
@@ -130,6 +139,7 @@ class Board(QFrame):
             self.boardArray[int(curpos[0])][int(curpos[1])] = 0
             self.boardArray[int(nextpos[0])][int(nextpos[1])] = temp
             self.printBoardArray()
+
 
             self.curPos = ""
             self.nextPos = ""
@@ -152,6 +162,7 @@ class Board(QFrame):
             self.firstClick = False
             self.secondClick = False
 
+    ''' All the mouse events happens here. Pieces and moved here and the capture is happening. '''
     def mousePressEvent(self, event):
         print("click location [", event.x(), ",", event.y(), "]")
         # todo you could call some game locig here
@@ -160,10 +171,12 @@ class Board(QFrame):
         #print(self.trackPieces)
         print("Pos: ", pos)
 
+        ''' Variable used to check which piece was clicked. '''
         turn = [x.strip() for x in pos.split(",")]
         if self.boardArray[int(turn[0])][int(turn[1])] == self.turn:
             self.firstClick = True
 
+        ''' Check if the previous point is not empty. '''
         if self.curPos != "":
             self.secondClick = True
 
@@ -190,6 +203,7 @@ class Board(QFrame):
         #nextpos = [x.strip() for x in self.nextPos.split(",")]
         #print("Next: ", nextpos)
 
+        ''' Condition is true only if the precious point is not null '''
         if self.firstClick and self.curPos == "":
             curpos = [x.strip() for x in pos.split(",")]
             if self.boardArray[int(curpos[0])][int(curpos[1])] != 0:
@@ -197,13 +211,17 @@ class Board(QFrame):
                 self.curPos = pos
                 self.piece = self.boardArray[int(curpos[0])][int(curpos[1])]
 
+        ''' If the second click is valid then we move forward with the piece movement and the capturing. '''
         if self.curPos != "" and self.secondClick:
             curpos = [x.strip() for x in self.curPos.split(",")]
             nextpos = [x.strip() for x in pos.split(",")]
 
-
             if self.boardArray[int(nextpos[0])][int(nextpos[1])] == 0: # Check for the boardarray number if moved.
-                if self.piece == 1:
+                ''' Checks which piece was moved. '''
+                if self.piece == 1: # Piece is white.
+                    ''' if/elif statement to check if it is normal movement or capturing movement.
+                        Deletes the captured piece if elif section. 
+                    '''
                     if int(nextpos[0]) == (int(curpos[0]) + 1) and (int(nextpos[1]) >= 0 and int(nextpos[1]) <= 7 and (int(nextpos[1]) == (int(curpos[1]) - 1) or int(nextpos[1]) == (int(curpos[1]) + 1))):
                         self.nextPos = pos
                     elif int(nextpos[0]) == (int(curpos[0]) + 2) and (int(nextpos[1]) >= 0 and int(nextpos[1]) <= 7 and (int(nextpos[1]) == (int(curpos[1]) - 2) or int(nextpos[1]) == (int(curpos[1]) + 2))):
@@ -218,8 +236,8 @@ class Board(QFrame):
                         self.boardArray[row][col] = 0
                         self.countBlackCaptures += 1
                         self.blackCaptured.emit(self.countBlackCaptures)
-                    self.turn = 2
-                elif self.piece == 2:
+                    self.turn = 2 # Change player's turn for the scoreboard
+                elif self.piece == 2: # Piece is black
                     if int(nextpos[0]) == (int(curpos[0]) - 1) and (int(nextpos[1]) >= 0 and int(nextpos[1]) <= 7 and (int(nextpos[1]) == (int(curpos[1]) - 1) or int(nextpos[1]) == (int(curpos[1]) + 1))):
                         self.nextPos = pos
                     elif int(nextpos[0]) == (int(curpos[0]) - 2) and (int(nextpos[1]) >= 0 and int(nextpos[1]) <= 7 and (int(nextpos[1]) == (int(curpos[1]) - 2) or int(nextpos[1]) == (int(curpos[1]) + 2))):
@@ -256,7 +274,6 @@ class Board(QFrame):
             #print(self.trackPieces)
             self.mousePressed = True
             self.update()
-
 
     def keyPressEvent(self, event):
         '''processes key press events if you would like to do any'''
@@ -303,6 +320,7 @@ class Board(QFrame):
         else:
             super(Board, self).timerEvent(event)
 
+    ''' Resets the Game. '''
     def resetGame(self):
         '''clears pieces from the board'''
         # todo write code to reset game
@@ -322,6 +340,7 @@ class Board(QFrame):
     def tryMove(self, newX, newY):
         '''tries to move a piece'''
 
+    ''' Draws the board. '''
     def drawBoardSquares(self, painter):
         '''draw all the square on the board'''
         # todo set the dafault colour of the brush
@@ -344,6 +363,7 @@ class Board(QFrame):
                 #print(rowTransformation, " ", colTransformation)
 
 
+    ''' Draws the pieces on the board. '''
     def drawPieces(self, painter):
         '''draw the prices on the board'''
         colour = Qt.transparent

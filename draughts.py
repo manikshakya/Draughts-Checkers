@@ -19,7 +19,10 @@ class Draughts(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, self.scoreBoard)
         self.statusbar = self.statusBar()
         self.tboard.msg2Statusbar[str].connect(self.statusbar.showMessage)
+
+        ''' Makes the connection with the scoreboard. '''
         self.scoreBoard.make_connection(self.tboard)
+
 
 
         self.tboard.start()
