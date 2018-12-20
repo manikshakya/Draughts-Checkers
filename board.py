@@ -1,12 +1,13 @@
 from PyQt5.QtWidgets import QFrame
 from PyQt5.QtCore import Qt, QBasicTimer, pyqtSignal, QPoint, pyqtSlot
 from PyQt5.QtGui import QPainter, QColor
-from scoreBoard import ScoreBoard
+
 
 from piece import Piece
 
 class Board(QFrame):
     msg2Statusbar = pyqtSignal(str)
+    
 
     # todo set the board with and height in square
     boardWidth = 8
@@ -195,7 +196,7 @@ class Board(QFrame):
         if self.curPos != "" and self.secondClick:
             curpos = [x.strip() for x in self.curPos.split(",")]
             nextpos = [x.strip() for x in pos.split(",")]
-            self.turn.emit(str(self.turn))
+
 
             if self.boardArray[int(nextpos[0])][int(nextpos[1])] == 0: # Check for the boardarray number if moved.
                 if self.piece == 1:
